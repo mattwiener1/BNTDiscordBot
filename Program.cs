@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
@@ -45,9 +46,12 @@ public class Program
         Console.WriteLine($"Received message: {message.Content}");
 
         // Respond with a message
-        if (message.Content.Contains("!hello"))
+        if (message.Content.Contains("<@1294610193249996921>"))
         {
-            await message.Channel.SendMessageAsync("Hello! I'm your friendly bot.");
+            var chatGptService = new ChatGptService();
+            System.Console.WriteLine(message.Content.Substring(22));
+            var response = await chatGptService.GetChatGptResponse(message.Content.Substring(22));
+            await message.Channel.SendMessageAsync(response);
         }
     }
 }
