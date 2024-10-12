@@ -4,7 +4,6 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Builder;
 
 public class ChatGptService
 {
@@ -12,10 +11,8 @@ public class ChatGptService
 
     public ChatGptService()
     {
-        var builder = WebApplication.CreateBuilder();
-        var configuration = builder.Configuration;
-        _apiKey  = configuration["OPEN_API_KEY"];
-        // _apiKey = Environment.GetEnvironmentVariable("OPEN_API_KEY");
+       
+        _apiKey = Environment.GetEnvironmentVariable("OPEN_API_KEY");
     }
 
     public async Task<string> GetChatGptResponse(string message)

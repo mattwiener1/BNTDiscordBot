@@ -4,7 +4,6 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
-using Microsoft.AspNetCore.Builder;
 
 public class Program
 {
@@ -15,9 +14,8 @@ public class Program
 
     public async Task MainAsync()
     {
-        var builder = WebApplication.CreateBuilder();
-        var configuration = builder.Configuration;
-        var token = configuration["DISCORD_BOT_TOKEN"];
+        
+        var token = Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN");
 
         _client = new DiscordSocketClient();
 
@@ -26,7 +24,6 @@ public class Program
         _client.MessageReceived += MessageReceivedAsync;
 
         // Insert your bot's token here
-        // var token = Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN");
 
         // Login and start the bot
         await _client.LoginAsync(TokenType.Bot, token);
@@ -51,9 +48,10 @@ public class Program
 
         // Log the received message
         Console.WriteLine($"Received message: {message.Content}");
+        var discord_app_id = Environment.GetEnvironmentVariable("DISCORD_APP_ID");
 
         // Respond with a message
-        if (message.Content.Contains("<@1294610193249996921>"))
+        if (message.Content.Contains($"<@{discord_app_id}>"))
         {
             var chatGptService = new ChatGptService();
             var messageSubstring = message.Content.Substring(22);
