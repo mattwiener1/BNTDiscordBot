@@ -1,3 +1,59 @@
+# .NET Core / .NET 8
+bin/
+obj/
+
+# .NET User Secrets
+**/secrets.json
+
+# VSCode specific files
+.vscode/
+.vscode/*
+
+# NuGet Packages
+*.nupkg
+# The packages folder can be ignored because of the presence of 'project.assets.json' which will download the correct NuGet dependencies during build.
+packages/
+# Uncomment if necessary however generally it will be restored when needed
+# !packages/build/
+# !packages/rebuild/
+# !packages/**/license.html
+
+# Include if you have NuGet Package Restore enabled
+# .nuget/
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Folder config file
+Desktop.ini
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# VSCode Settings
+.vscode/
+
+# OS-generated files
+.DS_Store
+*.swp
+*.swo
+*.lock
+.idea/
+
+# Logs
+*.log
+
+# Rider
+.idea/
+
+# Visual Studio temporary files
+.vs/
+
+# Uncomment if you have editors like Rider, Sublime Text, or others that may generate local settings files.
+# .sublime-project
+# .sublime-workspace
+
 bin/Debug/net6.0/BNTDiscordBot.dll
 bin/Debug/net6.0/BNTDiscordBot.pdb
 obj/Debug/net6.0/BNTDiscordBot.dll
