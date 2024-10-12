@@ -58,5 +58,11 @@ public class Program
             var response = await chatGptService.GetChatGptResponse(messageSubstring);
             await message.Channel.SendMessageAsync(response);
         }
+
+        if (message.Channel is IPrivateChannel){
+            var chatGptService = new ChatGptService();
+            var response = await chatGptService.GetChatGptResponse(message.Content);
+            await message.Channel.SendMessageAsync(response);
+        }
     }
 }
