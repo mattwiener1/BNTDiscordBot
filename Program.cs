@@ -19,7 +19,6 @@ public class Program
 
         // Insert your bot's token here
         var token = Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN");
-        System.Console.WriteLine(token);
 
         // Login and start the bot
         await _client.LoginAsync(TokenType.Bot, token);
@@ -46,7 +45,7 @@ public class Program
         Console.WriteLine($"Received message: {message.Content}");
 
         // Respond with a message
-        if (message.Content == "!hello")
+        if (message.Content.Contains("!hello"))
         {
             await message.Channel.SendMessageAsync("Hello! I'm your friendly bot.");
         }
