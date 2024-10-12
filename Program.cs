@@ -4,15 +4,21 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
+using Microsoft.AspNetCore.Builder;
 
 public class Program
 {
+    
     private DiscordSocketClient? _client;
 
     public static Task Main(string[] args) => new Program().MainAsync();
 
     public async Task MainAsync()
     {
+        var builder = WebApplication.CreateBuilder();
+        var configuration = builder.Configuration;
+        var token = configuration["DISCORD_BOT_TOKEN"];
+
         _client = new DiscordSocketClient();
 
         // Log the bot events for debugging purposes
@@ -20,7 +26,7 @@ public class Program
         _client.MessageReceived += MessageReceivedAsync;
 
         // Insert your bot's token here
-        var token = Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN");
+        // var token = Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN");
 
         // Login and start the bot
         await _client.LoginAsync(TokenType.Bot, token);
@@ -45,7 +51,7 @@ public class Program
 
         // Log the received message
         Console.WriteLine($"Received message: {message.Content}");
-        System.Console.WriteLine(message.MentionedUsers);
+
         // Respond with a message
         if (message.Content.Contains("<@1294610193249996921>"))
         {
