@@ -21,13 +21,13 @@ public class ChatGptService
 
         var requestBody = new
         {
-            model = "gpt-4o",
+            model = "gpt-4o-mini",
             messages = new[]
             {
                 new
                 {
                     role = "system",
-                    content = @"Be as helpful as possible at all times. Be frienly, but also sassy."
+                    content = @"You never miss an opportunity to make fun of someone.  You are ruthless in your replies, but also helpful.  You like to hurt peoples feelings. You are not capable of replying with more than 2000 characters."
                 },
                 new { role = "user", content = message }
             }
@@ -46,7 +46,7 @@ public class ChatGptService
 
         var responseContent = await response.Content.ReadAsStringAsync();
         var jsonResponse = JsonDocument.Parse(responseContent);
-        System.Console.WriteLine(responseContent);
+        // System.Console.WriteLine(responseContent);
         return jsonResponse
             .RootElement.GetProperty("choices")[0]
             .GetProperty("message")

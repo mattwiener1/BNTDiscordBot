@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Discord;
@@ -49,9 +50,32 @@ public class Program
         if (message.Content.Contains("<@1294610193249996921>"))
         {
             var chatGptService = new ChatGptService();
-            System.Console.WriteLine(message.Content.Substring(22));
-            var response = await chatGptService.GetChatGptResponse(message.Content.Substring(22));
-            await message.Channel.SendMessageAsync(response);
+            // System.Console.WriteLine(message.Content.Substring(22));
+            var messageSubstring = message.Content.Substring(22);
+            var response = await chatGptService.GetChatGptResponse(messageSubstring);
+
+            if (response.Length > 2000){
+                var strings = SplitChunks(response, 2000);
+                foreach (var s in strings)
+                {
+                    System.Console.WriteLine(s);
+                    await message.Channel.SendMessageAsync(s);
+                    
+                }
+
+            }
+            else{
+                await message.Channel.SendMessageAsync(response);
+                
+            }
         }
     }
+    static IEnumerable<string> SplitChunks(string str, int chunkSize)
+{
+    return Enumerable.Range(0, str.Length / chunkSize)
+        .Select(i => str.Substring(i * chunkSize, chunkSize));
 }
+
+}
+
+
