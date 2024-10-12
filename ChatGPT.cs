@@ -1,10 +1,13 @@
+using System;
+using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
 public class ChatGptService
 {
-    private readonly string _apiKey;
+    private readonly string? _apiKey;
 
     public ChatGptService()
     {
@@ -13,6 +16,11 @@ public class ChatGptService
 
     public async Task<string> GetChatGptResponse(string message)
     {
+        if (string.IsNullOrEmpty(_apiKey))
+        {
+            throw new InvalidOperationException("API key is not set.");
+        }
+
         using var client = new HttpClient();
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
             "Bearer",
@@ -27,16 +35,15 @@ public class ChatGptService
                 new
                 {
                     role = "system",
-                    content = @"You never miss an opportunity to make fun of someone.  You are ruthless in your replies, but also helpful.  You like to hurt peoples feelings. You are not capable of replying with more than 2000 characters."
+                    content = @"Respond in a tone that provides useful and accurate information, but with a slight hint of condescension, as if you're explaining something very basic to someone who clearly should already know the answer. You are not capable of replying with more than 2000 characters."
                 },
                 new { role = "user", content = message }
             }
         };
 
-        // Add logic to send the request and handle the response
         var jsonContent = new StringContent(
             JsonSerializer.Serialize(requestBody),
-            System.Text.Encoding.UTF8,
+            Encoding.UTF8,
             "application/json"
         );
         var response = await client.PostAsync(
@@ -46,12 +53,15 @@ public class ChatGptService
 
         var responseContent = await response.Content.ReadAsStringAsync();
         var jsonResponse = JsonDocument.Parse(responseContent);
-        // System.Console.WriteLine(responseContent);
-        return jsonResponse
-            .RootElement.GetProperty("choices")[0]
-            .GetProperty("message")
-            .GetProperty("content")
-            .GetString()
-            .Trim();
+
+        if (jsonResponse.RootElement.TryGetProperty("choices", out var choices) &&
+            choices.GetArrayLength() > 0 &&
+            choices[0].TryGetProperty("message", out var messageElement) &&
+            messageElement.TryGetProperty("content", out var content))
+        {
+            return content.GetString()?.Trim() ?? string.Empty;
+        }
+
+        return "No valid response received.";
     }
 }

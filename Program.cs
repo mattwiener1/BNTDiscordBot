@@ -7,7 +7,7 @@ using Discord.WebSocket;
 
 public class Program
 {
-    private DiscordSocketClient _client;
+    private DiscordSocketClient? _client;
 
     public static Task Main(string[] args) => new Program().MainAsync();
 
@@ -45,37 +45,14 @@ public class Program
 
         // Log the received message
         Console.WriteLine($"Received message: {message.Content}");
-
+        System.Console.WriteLine(message.MentionedUsers);
         // Respond with a message
         if (message.Content.Contains("<@1294610193249996921>"))
         {
             var chatGptService = new ChatGptService();
-            // System.Console.WriteLine(message.Content.Substring(22));
             var messageSubstring = message.Content.Substring(22);
             var response = await chatGptService.GetChatGptResponse(messageSubstring);
-
-            if (response.Length > 2000){
-                var strings = SplitChunks(response, 2000);
-                foreach (var s in strings)
-                {
-                    System.Console.WriteLine(s);
-                    await message.Channel.SendMessageAsync(s);
-                    
-                }
-
-            }
-            else{
-                await message.Channel.SendMessageAsync(response);
-                
-            }
+            await message.Channel.SendMessageAsync(response);
         }
     }
-    static IEnumerable<string> SplitChunks(string str, int chunkSize)
-{
-    return Enumerable.Range(0, str.Length / chunkSize)
-        .Select(i => str.Substring(i * chunkSize, chunkSize));
 }
-
-}
-
-
