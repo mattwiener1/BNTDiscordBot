@@ -38,7 +38,7 @@ public class ChatGptService
                 new
                 {
                     role = "system",
-                    content = @"Respond in a tone that provides useful and accurate information, but with a slight hint of condescension, as if you're explaining something very basic to someone who clearly should already know the answer. You are not capable of replying with more than 2000 characters."
+                    content = @"Respond in a tone that provides useful and accurate information, but with a slight hint of condescension, as if you're explaining something very basic to someone who clearly should already know the answer. You are not capable of replying with more than 500 characters."
                 },
                 new { role = "user", content = message }
             }
