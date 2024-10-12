@@ -27,6 +27,8 @@ public class ChatGptService
             _apiKey
         );
 
+
+
         var requestBody = new
         {
             model = "gpt-4o-mini",
