@@ -11,7 +11,6 @@ public class ChatGptService
 
     public ChatGptService()
     {
-       
         _apiKey = Environment.GetEnvironmentVariable("OPEN_API_KEY");
     }
 
@@ -19,7 +18,7 @@ public class ChatGptService
     {
         if (string.IsNullOrEmpty(_apiKey))
         {
-            throw new InvalidOperationException("API key is not set.");
+            throw new ArgumentNullException(nameof(_apiKey));
         }
 
         using var client = new HttpClient();

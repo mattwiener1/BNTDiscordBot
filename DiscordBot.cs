@@ -8,13 +8,23 @@ using BNTDiscordBot;
 public class DiscordBot
 {
     private DiscordSocketClient? _client;
-    private string _discord_app_id = Environment.GetEnvironmentVariable("DISCORD_APP_ID");
-    private string _token = Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN");
-
+    private string? _discord_app_id;
+    private string? _token;
     private Dictionary<string, Func<SocketMessage, Task>> _commandHandlers;
 
     public DiscordBot()
     {
+        _discord_app_id = Environment.GetEnvironmentVariable("DISCORD_APP_ID");
+
+        if (string.IsNullOrEmpty(_discord_app_id))
+        {
+            throw new ArgumentNullException(nameof(_discord_app_id));
+        }
+        _token = Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN");
+        if (string.IsNullOrEmpty(_token))
+        {
+            throw new ArgumentNullException(nameof(_token));
+        }
         _commandHandlers = new Dictionary<string, Func<SocketMessage, Task>>
         {
             { "!roll", RollDice },
