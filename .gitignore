@@ -116,3 +116,4 @@ obj/Debug/net6.0/ref/BNTDiscordBot.dll
 obj/Debug/net6.0/refint/BNTDiscordBot.dll
 compose.yml
 Dockerfile
+.env
