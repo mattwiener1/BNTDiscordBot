@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
@@ -9,6 +10,17 @@ public class DiscordBot
     private DiscordSocketClient? _client;
     private string _discord_app_id = Environment.GetEnvironmentVariable("DISCORD_APP_ID");
     private string _token = Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN");
+
+    private Dictionary<string, Func<SocketMessage, Task>> _commandHandlers;
+
+    public DiscordBot()
+    {
+        _commandHandlers = new Dictionary<string, Func<SocketMessage, Task>>
+        {
+            { "!roll", RollDice },
+            { "!flip", FlipCoin }
+        };
+    }
 
     public async Task StartAsync()
     {
@@ -43,36 +55,19 @@ public class DiscordBot
         Console.WriteLine($"Received message: {message.Content}");
         var messageText = message.Content.ToLower();
 
-        // Respond with a message
-        if (messageText.Contains($"<@{_discord_app_id}>"))
+        // Check if the message is directed at the bot
+        if (messageText.Contains($"<@{_discord_app_id}>") || message.Channel is IPrivateChannel)
         {
-            if (messageText.Contains("!roll"))
+            foreach (var command in _commandHandlers.Keys)
             {
-                await RollDice(messageText, message);
+                if (messageText.Contains(command))
+                {
+                    await _commandHandlers[command](message);
+                    return;
+                }
             }
-            else if (message.Content.ToLower().Contains("!flip")){
-                
-                await FlipCoin(message);
-            }
-            else
-            {
-                await SendChatGPTMessage(message);
-            }
-        }
-        else if (message.Channel is IPrivateChannel)
-        {
-            if (message.Content.ToLower().Contains("!roll"))
-            {
-                await RollDice(messageText, message);
-            }
-            else if (message.Content.ToLower().Contains("!flip")){
-                
-                await FlipCoin(message);
-            }
-            else
-            {
-                await SendChatGPTMessage(message);
-            }
+            // Default action if no command matches
+            await SendChatGPTMessage(message);
         }
     }
 
@@ -83,9 +78,11 @@ public class DiscordBot
         await message.Channel.SendMessageAsync(response);
     }
 
-    private async Task RollDice(string messageText, SocketMessage message)
+    private async Task RollDice(SocketMessage message)
     {
-        if (int.TryParse(messageText.ToLower().Replace($"<@{_discord_app_id}> !roll",""),out var numSides)){
+        var messageText = message.Content.ToLower();
+        if (int.TryParse(messageText.Replace($"<@{_discord_app_id}> !roll", ""), out var numSides))
+        {
             await message.Channel.SendMessageAsync(Dice.Roll(numSides).ToString());
         }
         else
@@ -94,10 +91,10 @@ public class DiscordBot
         }
     }
 
-    private async Task FlipCoin(SocketMessage message){
+    private async Task FlipCoin(SocketMessage message)
+    {
         CoinFlip coinFlip = new CoinFlip();
         var result = coinFlip.Flip();
         await message.Channel.SendMessageAsync(result);
-
     }
 }
