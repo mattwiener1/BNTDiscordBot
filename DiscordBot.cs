@@ -66,18 +66,22 @@ public class DiscordBot
         var messageText = message.Content.ToLower();
 
         // Check if the message is directed at the bot
-        if (messageText.Contains($"<@{_discord_app_id}>") || message.Channel is IPrivateChannel)
+        using (message.Channel.EnterTypingState())
         {
-            foreach (var command in _commandHandlers.Keys)
+
+            if (messageText.Contains($"<@{_discord_app_id}>") || message.Channel is IPrivateChannel)
             {
-                if (messageText.Contains(command))
+                foreach (var command in _commandHandlers.Keys)
                 {
-                    await _commandHandlers[command](message);
-                    return;
+                    if (messageText.Contains(command))
+                    {
+                        await _commandHandlers[command](message);
+                        return;
+                    }
                 }
+                // Default action if no command matches
+                await SendChatGPTMessage(message);
             }
-            // Default action if no command matches
-            await SendChatGPTMessage(message);
         }
     }
 
