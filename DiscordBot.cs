@@ -77,13 +77,8 @@ public class DiscordBot
 
     private async Task RollDice(string messageText, SocketMessage message)
     {
-        int intValue;
-        bool successfullyParsed = int.TryParse(messageText.ToLower().Replace($"<@{_discord_app_id}> !roll", "").Trim(), out intValue);
-        Console.WriteLine(messageText.ToLower().Replace($"<@{_discord_app_id}> !roll", "").Trim());
-        if (successfullyParsed)
-        {
-            Console.WriteLine("Here");
-            await message.Channel.SendMessageAsync(Dice.Roll(intValue).ToString());
+        if (int.TryParse(messageText.ToLower().Replace($"<@{_discord_app_id}> !roll",""),out var numSides)){
+            await message.Channel.SendMessageAsync(Dice.Roll(numSides).ToString());
         }
         else
         {
