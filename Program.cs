@@ -1,9 +1,12 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
+using BNTDiscordBot;
 using Discord;
 using Discord.WebSocket;
+
 
 public class Program
 {
@@ -49,20 +52,42 @@ public class Program
         // Log the received message
         Console.WriteLine($"Received message: {message.Content}");
         var discord_app_id = Environment.GetEnvironmentVariable("DISCORD_APP_ID");
-
+        var messageText = message.Content.ToLower();
         // Respond with a message
-        if (message.Content.Contains($"<@{discord_app_id}>"))
+        if (messageText.Contains($"<@{discord_app_id}>"))
         {
+            if (messageText.Contains("!roll")){
+                 await RollDice(messageText, message);
+            } 
+            else{
+                await SendChatGPTMessage(message);
+            }
+        }
+        else if (message.Channel is IPrivateChannel){
+
+            if (message.Content.ToLower().Contains("!roll")){
+                await RollDice(messageText, message);
+            } 
+            else{
+                await SendChatGPTMessage(message);
+            }
+        }
+        async Task SendChatGPTMessage(SocketMessage message){
             var chatGptService = new ChatGptService();
-            var messageSubstring = message.Content.Substring(22);
-            var response = await chatGptService.GetChatGptResponse(messageSubstring);
+            var response =  await chatGptService.GetChatGptResponse(message.Content);
             await message.Channel.SendMessageAsync(response);
         }
-
-        if (message.Channel is IPrivateChannel){
-            var chatGptService = new ChatGptService();
-            var response = await chatGptService.GetChatGptResponse(message.Content);
-            await message.Channel.SendMessageAsync(response);
+        async Task RollDice(string messageText, SocketMessage message){
+            int intValue;
+            bool successfullyParsed = int.TryParse(messageText.ToLower().Replace($"<@{discord_app_id}> !roll","").Trim(), out intValue);
+            System.Console.WriteLine(messageText.ToLower().Replace($"<@{discord_app_id}> !roll","").Trim());
+            if (successfullyParsed){
+                System.Console.WriteLine( "Here");
+                await message.Channel.SendMessageAsync(Dice.Roll(intValue).ToString());
+            }
+            else{
+                    await message.Channel.SendMessageAsync(Dice.Roll().ToString());
+            }
         }
     }
 }
