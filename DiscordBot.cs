@@ -50,6 +50,10 @@ public class DiscordBot
             {
                 await RollDice(messageText, message);
             }
+            else if (message.Content.ToLower().Contains("!flip")){
+                
+                await FlipCoin(message);
+            }
             else
             {
                 await SendChatGPTMessage(message);
@@ -60,6 +64,10 @@ public class DiscordBot
             if (message.Content.ToLower().Contains("!roll"))
             {
                 await RollDice(messageText, message);
+            }
+            else if (message.Content.ToLower().Contains("!flip")){
+                
+                await FlipCoin(message);
             }
             else
             {
@@ -84,5 +92,12 @@ public class DiscordBot
         {
             await message.Channel.SendMessageAsync(Dice.Roll().ToString());
         }
+    }
+
+    private async Task FlipCoin(SocketMessage message){
+        CoinFlip coinFlip = new CoinFlip();
+        var result = coinFlip.Flip();
+        await message.Channel.SendMessageAsync(result);
+
     }
 }
