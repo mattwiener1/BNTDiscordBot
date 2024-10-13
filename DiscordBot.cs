@@ -66,11 +66,12 @@ public class DiscordBot
         var messageText = message.Content.ToLower();
 
         // Check if the message is directed at the bot
-        using (message.Channel.EnterTypingState())
-        {
 
-            if (messageText.Contains($"<@{_discord_app_id}>") || message.Channel is IPrivateChannel)
+        if (messageText.Contains($"<@{_discord_app_id}>") || message.Channel is IPrivateChannel)
+        {
+            using (message.Channel.EnterTypingState())
             {
+
                 foreach (var command in _commandHandlers.Keys)
                 {
                     if (messageText.Contains(command))
