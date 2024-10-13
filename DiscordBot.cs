@@ -94,8 +94,8 @@ public class DiscordBot
 
     private async Task RollDice(SocketMessage message)
     {
-        var messageText = message.Content.ToLower();
-        if (int.TryParse(messageText.Replace($"<@{_discord_app_id}> !roll", ""), out var numSides) || int.TryParse(messageText.Replace("!roll",""), out numSides))
+        var messageText = message.Content.ToLower().Replace($"<@{_discord_app_id}>", "").Replace("!roll","");
+        if (int.TryParse(messageText, out var numSides))
         {
             await message.Channel.SendMessageAsync(Dice.Roll(numSides).ToString());
         }
