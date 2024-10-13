@@ -1,8 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using BNTDiscordBot;
-
-public class Program
+﻿public class Program
 {
     public static Task Main(string[] args) => new Program().MainAsync();
 
