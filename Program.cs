@@ -2,18 +2,17 @@
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
-using BNTDiscordBot; // Added namespace for Dice
-
+using BNTDiscordBot; 
 public class Program
 {
     private DiscordSocketClient? _client;
+    private string _discord_app_id = Environment.GetEnvironmentVariable("DISCORD_APP_ID");
+    private string _token = Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN");
 
     public static Task Main(string[] args) => new Program().MainAsync();
 
     public async Task MainAsync()
     {
-        var token = Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN");
-
         _client = new DiscordSocketClient();
 
         // Log the bot events for debugging purposes
@@ -21,7 +20,7 @@ public class Program
         _client.MessageReceived += MessageReceivedAsync;
 
         // Login and start the bot
-        await _client.LoginAsync(TokenType.Bot, token);
+        await _client.LoginAsync(TokenType.Bot, _token);
         await _client.StartAsync();
 
         // Keep the bot running
@@ -43,11 +42,10 @@ public class Program
 
         // Log the received message
         Console.WriteLine($"Received message: {message.Content}");
-        var discord_app_id = Environment.GetEnvironmentVariable("DISCORD_APP_ID");
         var messageText = message.Content.ToLower();
 
         // Respond with a message
-        if (messageText.Contains($"<@{discord_app_id}>"))
+        if (messageText.Contains($"<@{_discord_app_id}>"))
         {
             if (messageText.Contains("!roll"))
             {
@@ -80,10 +78,9 @@ public class Program
 
     private async Task RollDice(string messageText, SocketMessage message)
     {
-        var discord_app_id = Environment.GetEnvironmentVariable("DISCORD_APP_ID");
         int intValue;
-        bool successfullyParsed = int.TryParse(messageText.ToLower().Replace($"<@{discord_app_id}> !roll", "").Trim(), out intValue);
-        Console.WriteLine(messageText.ToLower().Replace($"<@{discord_app_id}> !roll", "").Trim());
+        bool successfullyParsed = int.TryParse(messageText.ToLower().Replace($"<@{_discord_app_id}> !roll", "").Trim(), out intValue);
+        Console.WriteLine(messageText.ToLower().Replace($"<@{_discord_app_id}> !roll", "").Trim());
         if (successfullyParsed)
         {
             Console.WriteLine("Here");
