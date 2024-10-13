@@ -2,16 +2,11 @@ namespace BNTDiscordBot;
 
 public class CoinFlip
 {
-    Random _random;
-    List<string> _sides = new List<string>();
+    private static Random _random = new Random();
+    private static List<string> _sides = new List<string> { "Heads", "Tails" };
 
-    public CoinFlip(){
-        _random = new Random();
-        _sides.Add("Heads");
-        _sides.Add("Tails");
-    }
-
-    public string Flip(){
-        return _sides[_random.Next(0,2)];
+    public static string Flip()
+    {
+        return _sides[_random.Next(0, 2)];
     }
 }

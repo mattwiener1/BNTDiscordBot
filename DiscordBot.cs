@@ -107,8 +107,6 @@ public class DiscordBot
 
     private async Task FlipCoin(SocketMessage message)
     {
-        CoinFlip coinFlip = new CoinFlip();
-        var result = coinFlip.Flip();
-        await message.Channel.SendMessageAsync(result);
+        await message.Channel.SendMessageAsync(CoinFlip.Flip());
     }
 }
