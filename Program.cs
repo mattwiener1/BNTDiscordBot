@@ -1,23 +1,17 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Linq.Expressions;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
-using BNTDiscordBot;
 using Discord;
 using Discord.WebSocket;
-
+using BNTDiscordBot; // Added namespace for Dice
 
 public class Program
 {
-    
     private DiscordSocketClient? _client;
 
     public static Task Main(string[] args) => new Program().MainAsync();
 
     public async Task MainAsync()
     {
-        
         var token = Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN");
 
         _client = new DiscordSocketClient();
@@ -25,8 +19,6 @@ public class Program
         // Log the bot events for debugging purposes
         _client.Log += LogAsync;
         _client.MessageReceived += MessageReceivedAsync;
-
-        // Insert your bot's token here
 
         // Login and start the bot
         await _client.LoginAsync(TokenType.Bot, token);
@@ -53,41 +45,53 @@ public class Program
         Console.WriteLine($"Received message: {message.Content}");
         var discord_app_id = Environment.GetEnvironmentVariable("DISCORD_APP_ID");
         var messageText = message.Content.ToLower();
+
         // Respond with a message
         if (messageText.Contains($"<@{discord_app_id}>"))
         {
-            if (messageText.Contains("!roll")){
-                 await RollDice(messageText, message);
-            } 
-            else{
-                await SendChatGPTMessage(message);
-            }
-        }
-        else if (message.Channel is IPrivateChannel){
-
-            if (message.Content.ToLower().Contains("!roll")){
+            if (messageText.Contains("!roll"))
+            {
                 await RollDice(messageText, message);
-            } 
-            else{
+            }
+            else
+            {
                 await SendChatGPTMessage(message);
             }
         }
-        async Task SendChatGPTMessage(SocketMessage message){
-            var chatGptService = new ChatGptService();
-            var response =  await chatGptService.GetChatGptResponse(message.Content);
-            await message.Channel.SendMessageAsync(response);
+        else if (message.Channel is IPrivateChannel)
+        {
+            if (message.Content.ToLower().Contains("!roll"))
+            {
+                await RollDice(messageText, message);
+            }
+            else
+            {
+                await SendChatGPTMessage(message);
+            }
         }
-        async Task RollDice(string messageText, SocketMessage message){
-            int intValue;
-            bool successfullyParsed = int.TryParse(messageText.ToLower().Replace($"<@{discord_app_id}> !roll","").Trim(), out intValue);
-            System.Console.WriteLine(messageText.ToLower().Replace($"<@{discord_app_id}> !roll","").Trim());
-            if (successfullyParsed){
-                System.Console.WriteLine( "Here");
-                await message.Channel.SendMessageAsync(Dice.Roll(intValue).ToString());
-            }
-            else{
-                    await message.Channel.SendMessageAsync(Dice.Roll().ToString());
-            }
+    }
+
+    private async Task SendChatGPTMessage(SocketMessage message)
+    {
+        var chatGptService = new ChatGptService();
+        var response = await chatGptService.GetChatGptResponse(message.Content);
+        await message.Channel.SendMessageAsync(response);
+    }
+
+    private async Task RollDice(string messageText, SocketMessage message)
+    {
+        var discord_app_id = Environment.GetEnvironmentVariable("DISCORD_APP_ID");
+        int intValue;
+        bool successfullyParsed = int.TryParse(messageText.ToLower().Replace($"<@{discord_app_id}> !roll", "").Trim(), out intValue);
+        Console.WriteLine(messageText.ToLower().Replace($"<@{discord_app_id}> !roll", "").Trim());
+        if (successfullyParsed)
+        {
+            Console.WriteLine("Here");
+            await message.Channel.SendMessageAsync(Dice.Roll(intValue).ToString());
+        }
+        else
+        {
+            await message.Channel.SendMessageAsync(Dice.Roll().ToString());
         }
     }
 }
