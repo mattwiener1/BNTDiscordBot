@@ -28,7 +28,8 @@ public class DiscordBot
         _commandHandlers = new Dictionary<string, Func<SocketMessage, Task>>
         {
             { "!roll", RollDice },
-            { "!flip", FlipCoin }
+            { "!flip", FlipCoin },
+            {"!rps", Rps}
         };
     }
 
@@ -109,4 +110,8 @@ public class DiscordBot
     {
         await message.Channel.SendMessageAsync(CoinFlip.Flip());
     }
-}
+
+    private async Task Rps(SocketMessage message)
+{
+        await message.Channel.SendMessageAsync(RockPaperScissors.Shoot());
+}}
