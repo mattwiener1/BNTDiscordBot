@@ -12,6 +12,8 @@ public class DiscordBot
     private string? _token;
     private Dictionary<string, Func<SocketMessage, Task>> _commandHandlers;
 
+    private ChatGptService _chatGptService;
+
     public DiscordBot()
     {
         _discord_app_id = Environment.GetEnvironmentVariable("DISCORD_APP_ID");
@@ -31,6 +33,8 @@ public class DiscordBot
             { "!flip", FlipCoin },
             {"!rps", Rps}
         };
+
+        _chatGptService = new ChatGptService();
     }
 
     public async Task StartAsync()
@@ -88,8 +92,7 @@ public class DiscordBot
 
     private async Task SendChatGPTMessage(SocketMessage message)
     {
-        var chatGptService = new ChatGptService();
-        var response = await chatGptService.GetChatGptResponse(message.Content);
+        var response = await _chatGptService.GetChatGptResponse(message.Content);
         await message.Channel.SendMessageAsync(response);
     }
 
