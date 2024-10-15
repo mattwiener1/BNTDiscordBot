@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord;
 using Discord.WebSocket;
@@ -7,85 +6,62 @@ using BNTDiscordBot;
 
 public class DiscordBot
 {
-    private DiscordSocketClient? _client;
-    private string? _discord_app_id;
-    private string? _token;
-    private Dictionary<string, Func<SocketMessage, Task>> _commandHandlers;
-
-    private ChatGptService _chatGptService;
+    private readonly DiscordSocketClient _client;
+    private readonly string _discordAppId;
+    private readonly string _token;
+    private readonly CommandHandler _commandHandler;
+    private readonly ChatGptService _chatGptService;
 
     public DiscordBot()
     {
-        _discord_app_id = Environment.GetEnvironmentVariable("DISCORD_APP_ID");
+        _discordAppId = GetEnvironmentVariable("DISCORD_APP_ID");
+        _token = GetEnvironmentVariable("DISCORD_BOT_TOKEN");
 
-        if (string.IsNullOrEmpty(_discord_app_id))
-        {
-            throw new ArgumentNullException(nameof(_discord_app_id));
-        }
-        _token = Environment.GetEnvironmentVariable("DISCORD_BOT_TOKEN");
-        if (string.IsNullOrEmpty(_token))
-        {
-            throw new ArgumentNullException(nameof(_token));
-        }
-        _commandHandlers = new Dictionary<string, Func<SocketMessage, Task>>
-        {
-            { "!roll", RollDice },
-            { "!flip", FlipCoin },
-            {"!rps", Rps}
-        };
+        _commandHandler = new CommandHandler();
+        _commandHandler.RegisterCommand(new RollCommand());
+        _commandHandler.RegisterCommand(new FlipCommand());
+        _commandHandler.RegisterCommand(new RpsCommand());
 
         _chatGptService = new ChatGptService();
+        _client = new DiscordSocketClient();
     }
 
     public async Task StartAsync()
     {
-        _client = new DiscordSocketClient();
-
-        // Log the bot events for debugging purposes
         _client.Log += LogAsync;
         _client.MessageReceived += MessageReceivedAsync;
 
-        // Login and start the bot
         await _client.LoginAsync(TokenType.Bot, _token);
         await _client.StartAsync();
-
-        // Keep the bot running
         await Task.Delay(-1);
     }
 
-    // Logging any bot event information
     private Task LogAsync(LogMessage log)
     {
-        Console.WriteLine(log.ToString());
+        Console.WriteLine(log);
         return Task.CompletedTask;
     }
 
-    // This method is triggered whenever a message is received
     private async Task MessageReceivedAsync(SocketMessage message)
     {
-        // Don't reply to the bot's own messages
         if (message.Author.IsBot) return;
 
-        // Log the received message
         Console.WriteLine($"Received message: {message.Content}");
         var messageText = message.Content.ToLower();
 
-        // Check if the message is directed at the bot
-        if (messageText.Contains($"<@{_discord_app_id}>") || message.Channel is IPrivateChannel)
+        if (messageText.Contains($"<@{_discordAppId}>") || message.Channel is IPrivateChannel)
         {
             using (message.Channel.EnterTypingState())
             {
-
-                foreach (var command in _commandHandlers.Keys)
+                var commandPrefix = "!";
+                if (messageText.StartsWith(commandPrefix))
                 {
-                    if (messageText.Contains(command))
-                    {
-                        await _commandHandlers[command](message);
-                        return;
-                    }
+                    await _commandHandler.HandleCommandAsync(message, commandPrefix);
                 }
-                // Default action if no command matches
-                await SendChatGPTMessage(message);
+                else
+                {
+                    await SendChatGPTMessage(message);
+                }
             }
         }
     }
@@ -96,25 +72,13 @@ public class DiscordBot
         await message.Channel.SendMessageAsync(response);
     }
 
-    private async Task RollDice(SocketMessage message)
+    private string GetEnvironmentVariable(string variable)
     {
-        var messageText = message.Content.ToLower().Replace($"<@{_discord_app_id}>", "").Replace("!roll","");
-        if (int.TryParse(messageText, out var numSides))
+        var value = Environment.GetEnvironmentVariable(variable);
+        if (string.IsNullOrEmpty(value))
         {
-            await message.Channel.SendMessageAsync(Dice.Roll(numSides).ToString());
+            throw new ArgumentNullException(variable, $"Environment variable '{variable}' is not set.");
         }
-        else
-        {
-            await message.Channel.SendMessageAsync(Dice.Roll().ToString());
-        }
+        return value;
     }
-
-    private async Task FlipCoin(SocketMessage message)
-    {
-        await message.Channel.SendMessageAsync(CoinFlip.Flip());
-    }
-
-    private async Task Rps(SocketMessage message)
-{
-        await message.Channel.SendMessageAsync(RockPaperScissors.Shoot());
-}}
+}
